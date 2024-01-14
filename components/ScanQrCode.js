@@ -4,7 +4,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import yaml from "js-yaml";
 import ClickButton from "./ClickButton";
 import QrCodeScanner from "./QrCodeScanner";
-import checkRequiredFields from "../util/util";
+import { checkRequiredFields } from "../utils/utils";
 import QrCodeModal from "./QrCodeModal";
 
 export default function ScanQrCode() {
@@ -13,6 +13,7 @@ export default function ScanQrCode() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [shouldScan, setShouldScan] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -39,7 +40,9 @@ export default function ScanQrCode() {
         setIsModalOpen(true);
         setIsQrScanned(false);
         setShouldScan(false);
-        return;
+        throw new Error(
+          "An error occurred while processing the QR code. Please try again later."
+        );
       }
 
       setModalData(parsedData);
@@ -47,20 +50,24 @@ export default function ScanQrCode() {
       setIsQrScanned(true);
       setShouldScan(false);
     } catch (error) {
-      console.log("Error parsing QR data:", error);
+      setErrorMessage(error.message);
+      setIsModalOpen(true);
+      setIsQrScanned(false);
+      setShouldScan(false);
     }
   };
 
   const handleScanAgain = () => {
     setIsQrScanned(false);
     setShouldScan(true);
+    setErrorMessage(null);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setModalData(null);
     setIsQrScanned(false);
-    false;
+    setErrorMessage(null);
   };
 
   if (cameraPermission === null) {
@@ -80,20 +87,19 @@ export default function ScanQrCode() {
         scanned={isQrScanned}
         onBarCodeScanned={handleBarCodeScanned}
       />
-      <Box
-        flex={1}
-        width="100%"
-        justifyContent="flex-start"
-        alignItems="center"
-        paddingHorizontal="5%"
-      >
+      <Box flex={1} width="100%" alignItems="center">
         {!shouldScan && !isModalOpen ? (
           <ClickButton title="Press to Scan Again" onPress={handleScanAgain} />
         ) : (
           ""
         )}
       </Box>
-      <QrCodeModal isOpen={isModalOpen} onClose={closeModal} data={modalData} />
+      <QrCodeModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        data={modalData}
+        error={errorMessage}
+      />
     </Box>
   );
 }

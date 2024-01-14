@@ -1,45 +1,12 @@
-import { Linking, TouchableOpacity } from "react-native";
-import { Box, Text, Image } from "@gluestack-ui/themed";
-import { FontAwesome } from "@expo/vector-icons";
-
-const renderDetail = (label, value, link = null) => {
-  const openLink = (url) => {
-    Linking.openURL(url);
-  };
-
-  return (
-    <Box flexDirection="row" alignItems="center">
-      {label && label.iconName && (
-        <Text>
-          <FontAwesome
-            name={label.iconName}
-            size={16}
-            color="black"
-            style={{ marginRight: 5 }}
-          />
-          <Text>{label && label.text ? ` ${label.text}: ` : ""}</Text>
-        </Text>
-      )}
-      {link ? (
-        <TouchableOpacity onPress={() => openLink(link)}>
-          <Text>{value}</Text>
-        </TouchableOpacity>
-      ) : (
-        <Text>{value}</Text>
-      )}
-    </Box>
-  );
-};
+import { TouchableOpacity } from "react-native";
+import { Box, Image } from "@gluestack-ui/themed";
+import { renderDetail } from "../utils/utils";
 
 export default function PersonDetails({ personDetails }) {
   return (
     <Box width="100%">
       {personDetails.profilePic && (
-        <Box
-          alignItems="center"
-          justifyContent="center"
-          style={{ marginVertical: 10 }}
-        >
+        <Box alignItems="center" justifyContent="center">
           <TouchableOpacity onPress={() => openLink(personDetails.linkedin)}>
             <Image
               source={{ uri: personDetails.profilePic }}

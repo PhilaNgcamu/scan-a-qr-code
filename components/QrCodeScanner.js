@@ -9,7 +9,6 @@ export default function QrCodeScanner({ scanned, onBarCodeScanned }) {
     <Box
       flex={1}
       width={windowWidth * 0.8}
-      aspectRatio={4 / 3}
       justifyContent="center"
       alignItems="center"
     >
