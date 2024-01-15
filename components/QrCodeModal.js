@@ -19,7 +19,7 @@ export default function QrCodeModal({ isOpen, onClose, data, error }) {
           <Box>
             <PersonDetails personDetails={data} />
 
-            <ClickButton title="Okay" onPress={onClose} />
+            <ClickButton title="Press to Scan Again" onPress={onClose} />
           </Box>
         ) : (
           <Box>
@@ -36,7 +36,7 @@ export default function QrCodeModal({ isOpen, onClose, data, error }) {
             </Text>
 
             <ClickButton
-              title="Close"
+              title="Try to Scan Again"
               backgroundColor="red"
               onPress={onClose}
             />

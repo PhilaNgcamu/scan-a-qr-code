@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Box, Text } from "@gluestack-ui/themed";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import yaml from "js-yaml";
-import ClickButton from "./ClickButton";
 import QrCodeScanner from "./QrCodeScanner";
 import { checkRequiredFields } from "../utils/utils";
 import QrCodeModal from "./QrCodeModal";
@@ -57,16 +56,11 @@ export default function ScanQrCode() {
     }
   };
 
-  const handleScanAgain = () => {
-    setIsQrScanned(false);
-    setShouldScan(true);
-    setErrorMessage(null);
-  };
-
   const closeModal = () => {
     setIsModalOpen(false);
     setModalData(null);
     setIsQrScanned(false);
+    setShouldScan(true);
     setErrorMessage(null);
   };
 
@@ -80,20 +74,13 @@ export default function ScanQrCode() {
 
   return (
     <Box flex={1} alignItems="center" justifyContent="center" marginTop={100}>
-      <Text fontSize={20} fontWeight="bold" marginBottom={20}>
-        Find a QR Code
+      <Text fontSize={20} fontWeight="bold">
+        Scan a QR Code
       </Text>
       <QrCodeScanner
         scanned={isQrScanned}
         onBarCodeScanned={handleBarCodeScanned}
       />
-      <Box flex={1} width="100%" alignItems="center">
-        {!shouldScan && !isModalOpen ? (
-          <ClickButton title="Press to Scan Again" onPress={handleScanAgain} />
-        ) : (
-          ""
-        )}
-      </Box>
       <QrCodeModal
         isOpen={isModalOpen}
         onClose={closeModal}

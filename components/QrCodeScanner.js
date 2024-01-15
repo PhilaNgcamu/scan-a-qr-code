@@ -10,6 +10,7 @@ export default function QrCodeScanner({ scanned, onBarCodeScanned }) {
       flex={1}
       width={windowWidth * 0.8}
       justifyContent="center"
+      marginBottom={50}
       alignItems="center"
     >
       <BarCodeScanner
