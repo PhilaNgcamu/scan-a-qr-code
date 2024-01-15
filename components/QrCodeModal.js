@@ -1,6 +1,7 @@
 import { Modal, Text, Box } from "@gluestack-ui/themed";
+
 import PersonDetails from "./PersonDetails";
-import ClickButton from "./ClickButton";
+import Button from "./Button";
 
 export default function QrCodeModal({ isOpen, onClose, data, error }) {
   return (
@@ -19,7 +20,7 @@ export default function QrCodeModal({ isOpen, onClose, data, error }) {
           <Box>
             <PersonDetails personDetails={data} />
 
-            <ClickButton title="Press to Scan Again" onPress={onClose} />
+            <Button title="Press to Scan Again" onPress={onClose} />
           </Box>
         ) : (
           <Box>
@@ -35,7 +36,7 @@ export default function QrCodeModal({ isOpen, onClose, data, error }) {
               {error}
             </Text>
 
-            <ClickButton
+            <Button
               title="Try to Scan Again"
               backgroundColor="red"
               onPress={onClose}

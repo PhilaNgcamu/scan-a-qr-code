@@ -1,5 +1,6 @@
 import { TouchableOpacity } from "react-native";
 import { Box, Image } from "@gluestack-ui/themed";
+
 import { renderDetail } from "../utils/utils";
 
 export default function PersonDetails({ personDetails }) {

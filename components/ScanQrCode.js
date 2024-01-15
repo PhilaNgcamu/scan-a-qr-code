@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Text } from "@gluestack-ui/themed";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import yaml from "js-yaml";
+
 import QrCodeScanner from "./QrCodeScanner";
 import { checkRequiredFields } from "../utils/utils";
 import QrCodeModal from "./QrCodeModal";
@@ -40,7 +41,7 @@ export default function ScanQrCode() {
         setIsQrScanned(false);
         setShouldScan(false);
         throw new Error(
-          "An error occurred while processing the QR code. Please try again later."
+          "An error occurred while processing the QR code. Please try again."
         );
       }
 
