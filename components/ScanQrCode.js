@@ -5,7 +5,7 @@ import yaml from "js-yaml";
 
 import QrCodeScanner from "./QrCodeScanner";
 import { checkRequiredFields } from "../utils/utils";
-import QrCodeModal from "./QrCodeModal";
+import DisplayContactDetails from "./DisplayContactDetails";
 
 export default function ScanQrCode() {
   const [cameraPermission, setCameraPermission] = useState(null);
@@ -22,8 +22,6 @@ export default function ScanQrCode() {
     })();
   }, []);
 
-  const requiredFields = ["name", "email", "profilePic"];
-
   const handleBarCodeScanned = ({ data }) => {
     if (shouldScan) {
       processScannedData(data);
@@ -34,26 +32,23 @@ export default function ScanQrCode() {
     try {
       const parsedData = yaml.safeLoad(data);
 
-      const missingFields = checkRequiredFields(requiredFields, parsedData);
+      const missingFields = checkRequiredFields(parsedData);
 
       if (missingFields.length > 0) {
-        setIsModalOpen(true);
         setIsQrScanned(false);
-        setShouldScan(false);
         throw new Error(
           "An error occurred while processing the QR code. Please try again."
         );
       }
 
       setModalData(parsedData);
-      setIsModalOpen(true);
       setIsQrScanned(true);
-      setShouldScan(false);
     } catch (error) {
       setErrorMessage(error.message);
-      setIsModalOpen(true);
       setIsQrScanned(false);
+    } finally {
       setShouldScan(false);
+      setIsModalOpen(true);
     }
   };
 
@@ -75,14 +70,17 @@ export default function ScanQrCode() {
 
   return (
     <Box flex={1} alignItems="center" justifyContent="center" marginTop={100}>
-      <Text fontSize={20} fontWeight="bold">
-        Scan a QR Code
-      </Text>
+      {!isModalOpen && (
+        <Text fontSize={20} fontWeight="bold">
+          Scan a QR Code
+        </Text>
+      )}
       <QrCodeScanner
         scanned={isQrScanned}
         onBarCodeScanned={handleBarCodeScanned}
+        isModalOpen={isModalOpen}
       />
-      <QrCodeModal
+      <DisplayContactDetails
         isOpen={isModalOpen}
         onClose={closeModal}
         data={modalData}

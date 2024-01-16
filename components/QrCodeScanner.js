@@ -2,7 +2,11 @@ import { Dimensions } from "react-native";
 import { Box } from "@gluestack-ui/themed";
 import { BarCodeScanner } from "expo-barcode-scanner";
 
-export default function QrCodeScanner({ scanned, onBarCodeScanned }) {
+export default function QrCodeScanner({
+  scanned,
+  onBarCodeScanned,
+  isModalOpen,
+}) {
   const windowWidth = Dimensions.get("window").width;
 
   return (
@@ -12,14 +16,17 @@ export default function QrCodeScanner({ scanned, onBarCodeScanned }) {
       justifyContent="center"
       marginBottom={50}
       alignItems="center"
+      opacity={isModalOpen ? 0 : 1}
     >
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : onBarCodeScanned}
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-      />
+      {!isModalOpen && (
+        <BarCodeScanner
+          onBarCodeScanned={scanned ? undefined : onBarCodeScanned}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      )}
     </Box>
   );
 }

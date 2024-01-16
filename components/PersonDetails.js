@@ -21,49 +21,43 @@ export default function PersonDetails({ personDetails }) {
           </TouchableOpacity>
         </Box>
       )}
-      {renderDetail({ iconName: "user", text: "Name" }, personDetails.name)}
+      {renderDetail({ iconName: "user" }, personDetails.name)}
       {renderDetail(
-        { iconName: "envelope", text: "Email" },
+        { iconName: "envelope" },
         personDetails.email,
         `mailto:${personDetails.email}`
       )}
       {personDetails.status &&
-        renderDetail(
-          { iconName: "info-circle", text: "Status" },
-          personDetails.status
-        )}
+        renderDetail({ iconName: "info-circle" }, personDetails.status)}
       {personDetails.github &&
         renderDetail(
-          { iconName: "github", text: "GitHub" },
+          { iconName: "github" },
           personDetails.github,
           personDetails.github
         )}
       {personDetails.linkedin &&
         renderDetail(
-          { iconName: "linkedin", text: "LinkedIn" },
+          { iconName: "linkedin" },
           personDetails.linkedin,
           personDetails.linkedin
         )}
       {personDetails.twitter &&
         renderDetail(
-          { iconName: "twitter", text: "Twitter" },
+          { iconName: "twitter" },
           personDetails.twitter,
           personDetails.twitter
         )}
       {personDetails.personalWebsite &&
         renderDetail(
-          { iconName: "globe", text: "Personal Website" },
+          { iconName: "globe" },
           personDetails.personalWebsite,
           personDetails.personalWebsite
         )}
       {personDetails.company &&
-        renderDetail(
-          { iconName: "building", text: "Company" },
-          personDetails.company
-        )}
+        renderDetail({ iconName: "building" }, personDetails.company)}
       {personDetails.companyURL &&
         renderDetail(
-          { iconName: "globe", text: "Company Website" },
+          { iconName: "globe" },
           personDetails.companyURL,
           personDetails.companyURL
         )}
