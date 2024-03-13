@@ -1,13 +1,5 @@
 # Scan A QR Code App Screenshots
 
-<style> 
-  .screenshot-table img {
-    width: 200px;
-    height: auto;
-    margin-right: 10px;
-  }
-</style>
-
 <div class="screenshot-table">
   <table>
     <tr>
