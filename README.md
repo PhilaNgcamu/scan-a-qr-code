@@ -6,7 +6,7 @@ QR Conference Connector - [Contact List](http://syllabus.africacode.net/react-na
 
 # QR Conference Connector App Screenshots
 
-<style>
+<style> 
   .screenshot-table img {
     width: 200px;
     height: auto;
