@@ -1,11 +1,11 @@
-import { GluestackUIProvider } from "@gluestack-ui/themed";
-import { config } from "@gluestack-ui/config";
-import ScanQrCode from "./components/ScanQrCode";
+import { Provider } from "react-redux";
+import StackApp from "./src/screens/NavigationStack";
+import store from "./src/redux/store";
 
 export default function App() {
   return (
-    <GluestackUIProvider config={config}>
-      <ScanQrCode />
-    </GluestackUIProvider>
+    <Provider store={store}>
+      <StackApp />
+    </Provider>
   );
 }
