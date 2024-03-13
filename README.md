@@ -1,10 +1,4 @@
-Project link to the repo: https://github.com/Umuzi-org/Phila-Ngcamu-794-contentitem-javascript-react/tree/main
-
-QR Conference Connector - [Proof of Concept](http://syllabus.africacode.net/react-native/qr-conference-connector/proof-of-concept/)
-
-QR Conference Connector - [Contact List](http://syllabus.africacode.net/react-native/qr-conference-connector/contact-list/)
-
-# QR Conference Connector App Screenshots
+# Scan A QR Code App Screenshots
 
 <style> 
   .screenshot-table img {
