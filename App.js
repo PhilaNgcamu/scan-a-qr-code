@@ -1,3 +1,4 @@
+import React from "react";
 import { Provider } from "react-redux";
 import StackApp from "./src/screens/NavigationStack";
 import store from "./src/redux/store";

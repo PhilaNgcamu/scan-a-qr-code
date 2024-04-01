@@ -2,7 +2,6 @@ import actionTypes from "./actionTypes";
 
 const initialState = {
   cameraPermission: null,
-  hasPermission: null,
   isQrScanned: false,
   modalData: null,
   shouldScan: true,
@@ -17,9 +16,6 @@ const qrCodeReducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.SET_CAMERA_PERMISSION:
       return { ...state, cameraPermission: action.payload };
-
-    case actionTypes.SET_HAS_PERMISSION:
-      return { ...state, hasPermission: action.payload };
 
     case actionTypes.IS_QR_SCANNED:
       return { ...state, isQrScanned: action.payload };

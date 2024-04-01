@@ -1,3 +1,4 @@
+import React from "react";
 import { TouchableOpacity } from "react-native";
 import { Text } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";

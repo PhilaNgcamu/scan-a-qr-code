@@ -1,26 +1,15 @@
-import { useEffect } from "react";
+import React from "react";
 import { Camera } from "expo-camera";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Dimensions } from "react-native";
 import { Box } from "@gluestack-ui/themed";
-
-import { setHasPermission } from "../redux/actions";
 
 export default function QrCodeScanner({ onBarCodeScanned }) {
   const windowWidth = Dimensions.get("window").width;
 
-  const dispatch = useDispatch();
-
   const isScanned = useSelector((state) => state.isQrScanned);
   const isModalOpen = useSelector((state) => state.isModalOpen);
-  const hasPermission = useSelector((state) => state.hasPermission);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      dispatch(setHasPermission(status === "granted"));
-    })();
-  }, []);
+  const cameraPermission = useSelector((state) => state.cameraPermission);
 
   return (
     <Box
@@ -36,11 +25,12 @@ export default function QrCodeScanner({ onBarCodeScanned }) {
       overflow="hidden"
       borderColor="#fff"
     >
-      {!isModalOpen && hasPermission && (
+      {!isModalOpen && cameraPermission && (
         <Camera
           style={{
             flex: 1,
-            width: "100%",
+            width: windowWidth * 0.8,
+            aspectRatio: 1,
           }}
           type={Camera.Constants.Type.back}
           onBarCodeScanned={isScanned ? undefined : onBarCodeScanned}

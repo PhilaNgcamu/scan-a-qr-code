@@ -1,3 +1,4 @@
+import React from "react";
 import { TouchableOpacity } from "react-native";
 import { Box, Image } from "@gluestack-ui/themed";
 

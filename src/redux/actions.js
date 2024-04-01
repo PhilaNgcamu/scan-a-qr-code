@@ -5,11 +5,6 @@ export const setCameraPermission = (permission) => ({
   payload: permission,
 });
 
-export const setHasPermission = (hasPermission) => ({
-  type: actionTypes.SET_HAS_PERMISSION,
-  payload: hasPermission,
-});
-
 export const isQrScanned = (isScanned) => ({
   type: actionTypes.IS_QR_SCANNED,
   payload: isScanned,

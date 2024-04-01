@@ -1,3 +1,4 @@
+import React from "react";
 import { Linking, TouchableOpacity } from "react-native";
 import { Box, Text } from "@gluestack-ui/themed";
 import Icon from "@expo/vector-icons/FontAwesome";
