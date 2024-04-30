@@ -44,3 +44,7 @@ export const setIsLoading = (isLoading) => ({
   type: actionTypes.IS_LOADING,
   payload: isLoading,
 });
+
+export const isContactStarred = () => ({
+  type: actionTypes.IS_CONTACT_STARRED,
+});

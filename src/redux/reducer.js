@@ -10,6 +10,7 @@ const initialState = {
   contacts: [],
   isSameQrCode: false,
   isLoading: true,
+  isContactStarred: "staro",
 };
 
 const qrCodeReducer = (state = initialState, action) => {
@@ -40,6 +41,12 @@ const qrCodeReducer = (state = initialState, action) => {
 
     case actionTypes.IS_LOADING:
       return { ...state, isLoading: action.payload };
+
+    case actionTypes.IS_CONTACT_STARRED:
+      return {
+        ...state,
+        isContactStarred: state.isContactStarred === "staro" ? "star" : "staro",
+      };
 
     default:
       return state;

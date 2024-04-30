@@ -3,7 +3,7 @@ import { TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import { Text, Box, View, Image } from "@gluestack-ui/themed";
 import { useNavigation } from "@react-navigation/native";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 import { closeModal, renderDetail } from "../../utils/generalUtils";
 
@@ -93,13 +93,13 @@ export default function ContactDetailsScreen({ route }) {
             flexDirection: "row",
             justifyContent: "center",
             marginTop: 20,
-            backgroundColor: "green",
+            backgroundColor: "#0275d8",
             paddingVertical: 10,
             paddingHorizontal: 20,
             borderRadius: 5,
           }}
         >
-          <Feather name="camera" size={24} color="white" />
+          <Ionicons name="scan" size={20} color="white" />
           <Text
             style={{
               color: "white",

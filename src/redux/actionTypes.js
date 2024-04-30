@@ -8,6 +8,7 @@ const actionTypes = {
   SET_CONTACTS: "SET_CONTACTS",
   SET_IS_SAME_QR_CODE: "SET_IS_SAME_QR_CODE",
   IS_LOADING: "IS_LOADING",
+  IS_CONTACT_STARRED: "IS_CONTACT_STARRED",
 };
 
 module.exports = actionTypes;
