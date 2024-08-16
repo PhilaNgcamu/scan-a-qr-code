@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Callout, Marker } from "react-native-maps";
 import { StyleSheet, View, Text } from "react-native";
 import * as Location from "expo-location";
 
@@ -39,12 +39,17 @@ export default function App() {
       <MapView style={styles.map} region={region}>
         {location && (
           <Marker
+            draggable
             coordinate={{
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            title={"You are here"}
-          />
+            onDragEnd={(e) => setLocation(e.nativeEvent.coordinate)}
+          >
+            <Callout>
+              <Text>You are here</Text>
+            </Callout>
+          </Marker>
         )}
       </MapView>
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
