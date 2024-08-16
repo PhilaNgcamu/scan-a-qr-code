@@ -25,39 +25,47 @@ export default function App() {
           return;
         }
 
-        let location = await Location.getCurrentPositionAsync({});
-        if (location) {
-          setLocation(location.coords);
-          setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          });
+        // Watch user's location
+        const subscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            timeInterval: 1000,
+            distanceInterval: 1,
+          },
+          (location) => {
+            setLocation(location.coords);
+            setRegion((prevRegion) => ({
+              ...prevRegion,
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }));
 
-          const startLocation = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          };
-          const endLocation = {
-            latitude: -26.2001,
-            longitude: 28.0501,
-          };
+            // Update polyline
+            const startLocation = {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            };
+            const endLocation = {
+              latitude: -26.2001, // Replace with your actual end location latitude
+              longitude: 28.0501, // Replace with your actual end location longitude
+            };
 
-          const polylinePoints = await getGoogleInfo(
-            startLocation,
-            endLocation
-          );
-          if (polylinePoints) {
-            const decodedPoints = decode(polylinePoints);
-            setPolylineCoordinates(
-              decodedPoints.map((point) => ({
-                latitude: point[0],
-                longitude: point[1],
-              }))
-            );
+            getGoogleInfo(startLocation, endLocation).then((polylinePoints) => {
+              if (polylinePoints) {
+                const decodedPoints = decode(polylinePoints);
+                setPolylineCoordinates(
+                  decodedPoints.map((point) => ({
+                    latitude: point[0],
+                    longitude: point[1],
+                  }))
+                );
+              }
+            });
           }
-        }
+        );
+
+        // Clean up the subscription on unmount
+        return () => subscription.remove();
       } catch (error) {
         console.log("Error:", error);
         setErrorMessage(error.message);
@@ -66,15 +74,11 @@ export default function App() {
   }, []);
 
   const getGoogleInfo = async (startLocation, endLocation) => {
-    console.log("Start Location:", startLocation);
-    console.log("End Location:", endLocation);
-
     try {
       const API_KEY = "AIzaSyAiS-wNj3d2m2LYryOSg4tG4NTei2TA5Os";
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${endLocation.latitude},${endLocation.longitude}&key=${API_KEY}&mode=driving`
       );
-      console.log("Response:", JSON.stringify(response, null, 2));
 
       if (response.data.routes.length > 0) {
         return response.data.routes[0].overview_polyline.points;
