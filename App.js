@@ -9,14 +9,15 @@ import axios from "axios";
 import { decode } from "@mapbox/polyline";
 import { StyleSheet, View, Text, Animated } from "react-native";
 import * as Location from "expo-location";
+import { getGreatCircleBearing, getDistance } from "geolib";
 
 export default function App() {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState({
     latitude: -26.2041,
     longitude: 28.0473,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   });
   const [errorMessage, setErrorMessage] = useState(null);
   const [polylineCoordinates, setPolylineCoordinates] = useState([]);
@@ -24,14 +25,17 @@ export default function App() {
     latitude: -26.2001,
     longitude: 28.0501,
   });
+  const [heading, setHeading] = useState(0);
   const carPosition = useRef(
     new AnimatedRegion({
       latitude: -26.2041,
       longitude: 28.0473,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
     })
   ).current;
+
+  const mapRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -48,8 +52,8 @@ export default function App() {
           setRegion({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
           });
 
           const startLocation = {
@@ -69,8 +73,9 @@ export default function App() {
   const fetchRoute = async (startLocation, endLocation) => {
     try {
       const API_KEY = "AIzaSyAiS-wNj3d2m2LYryOSg4tG4NTei2TA5Os";
+
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${endLocation.latitude},${endLocation.longitude}&key=${API_KEY}&mode=driving`
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${endLocation.latitude},${endLocation.longitude}&key=${API_KEY}&mode=driving&departure_time=now`
       );
 
       if (response.data.routes.length > 0) {
@@ -90,14 +95,27 @@ export default function App() {
     }
   };
 
+  const getHeading = (start, end) => {
+    const startCoords = {
+      latitude: start.latitude,
+      longitude: start.longitude,
+    };
+    const endCoords = { latitude: end.latitude, longitude: end.longitude };
+    return getGreatCircleBearing(startCoords, endCoords);
+  };
+
   const animateCar = (coords) => {
     let index = 0;
     const animate = () => {
-      if (index < coords.length) {
+      if (index < coords.length - 1) {
+        const nextCoord = coords[index + 1];
+        const newHeading = getHeading(coords[index], nextCoord);
+        setHeading(newHeading);
+
         carPosition
           .timing({
-            latitude: coords[index].latitude,
-            longitude: coords[index].longitude,
+            latitude: nextCoord.latitude,
+            longitude: nextCoord.longitude,
             duration: 1000,
             useNativeDriver: false,
           })
@@ -105,6 +123,19 @@ export default function App() {
             index++;
             animate();
           });
+
+        mapRef.current.animateCamera(
+          {
+            center: {
+              latitude: nextCoord.latitude,
+              longitude: nextCoord.longitude,
+            },
+            pitch: 0,
+            heading: newHeading,
+            zoom: 18, // Adjust the zoom level as needed
+          },
+          { duration: 1000 }
+        );
       }
     };
     animate();
@@ -118,7 +149,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} region={region}>
+      <MapView ref={mapRef} style={styles.map} region={region}>
         {location && (
           <Marker
             draggable
@@ -152,13 +183,15 @@ export default function App() {
             strokeWidth={3}
           />
         )}
-        {carPosition && (
-          <Marker.Animated coordinate={carPosition} title="Car">
-            <View style={styles.carMarker}>
-              <Text style={styles.carMarkerText}>🚗</Text>
-            </View>
-          </Marker.Animated>
-        )}
+        <Marker.Animated
+          coordinate={carPosition}
+          title="Car"
+          rotation={heading}
+        >
+          <View style={styles.carMarker}>
+            <Text style={styles.carMarkerText}>🚗</Text>
+          </View>
+        </Marker.Animated>
       </MapView>
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
     </View>
