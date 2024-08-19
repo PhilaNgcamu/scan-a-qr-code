@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import MapView, {
   Callout,
   Marker,
@@ -7,15 +13,19 @@ import MapView, {
 } from "react-native-maps";
 import axios from "axios";
 import { decode } from "@mapbox/polyline";
-import { StyleSheet, View, Text, Animated } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import * as Location from "expo-location";
-import { getGreatCircleBearing, getDistance } from "geolib";
+import { getGreatCircleBearing } from "geolib";
+import { debounce } from "lodash";
 
 export default function App() {
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState({
+    latitude: -26.118427,
+    longitude: 27.890004,
+  });
   const [region, setRegion] = useState({
-    latitude: -26.2041,
-    longitude: 28.0473,
+    latitude: -26.118427,
+    longitude: 27.890004,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
@@ -28,8 +38,8 @@ export default function App() {
   const [heading, setHeading] = useState(0);
   const carPosition = useRef(
     new AnimatedRegion({
-      latitude: -26.2041,
-      longitude: 28.0473,
+      latitude: -26.118427,
+      longitude: 27.890004,
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     })
@@ -46,15 +56,14 @@ export default function App() {
           return;
         }
 
-        let location = await Location.getCurrentPositionAsync({});
+        let location = await Location.getLastKnownPositionAsync({});
         if (location) {
           setLocation(location.coords);
-          setRegion({
+          setRegion((prevRegion) => ({
+            ...prevRegion,
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          });
+          }));
 
           const startLocation = {
             latitude: location.coords.latitude,
@@ -63,17 +72,63 @@ export default function App() {
 
           fetchRoute(startLocation, destination);
         }
+
+        const startTracking = async () => {
+          try {
+            await Location.watchPositionAsync(
+              {
+                accuracy: Location.Accuracy.High,
+                distanceInterval: 1, // Update every 100 meters
+              },
+              debounce((newLocation) => {
+                const coords = newLocation.coords;
+                setLocation(coords);
+                setRegion((prevRegion) => ({
+                  ...prevRegion,
+                  latitude: coords.latitude,
+                  longitude: coords.longitude,
+                }));
+
+                carPosition
+                  .timing({
+                    latitude: coords.latitude,
+                    longitude: coords.longitude,
+                    duration: 1000,
+                    useNativeDriver: false,
+                  })
+                  .start();
+
+                if (mapRef.current) {
+                  mapRef.current.animateCamera(
+                    {
+                      center: {
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                      },
+                      pitch: 0,
+                      heading: heading,
+                      zoom: 18,
+                    },
+                    { duration: 1000 }
+                  );
+                }
+              }, 500) // Debounce to reduce frequency of updates
+            );
+          } catch (error) {
+            setErrorMessage("Error starting tracking: " + error.message);
+          }
+        };
+
+        await startTracking();
       } catch (error) {
-        console.log("Error:", error);
         setErrorMessage(error.message);
       }
     })();
-  }, []);
+  }, [carPosition, heading]);
 
-  const fetchRoute = async (startLocation, endLocation) => {
+  const fetchRoute = useCallback(async (startLocation, endLocation) => {
     try {
       const API_KEY = "AIzaSyAiS-wNj3d2m2LYryOSg4tG4NTei2TA5Os";
-
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation.latitude},${startLocation.longitude}&destination=${endLocation.latitude},${endLocation.longitude}&key=${API_KEY}&mode=driving&departure_time=now`
       );
@@ -87,102 +142,39 @@ export default function App() {
         }));
 
         setPolylineCoordinates(polylineCoords);
-        animateCar(polylineCoords);
       }
     } catch (error) {
-      console.error("Error fetching route data:", error);
       setErrorMessage("Error fetching route data.");
     }
-  };
+  }, []);
 
-  const getHeading = (start, end) => {
-    const startCoords = {
-      latitude: start.latitude,
-      longitude: start.longitude,
-    };
-    const endCoords = { latitude: end.latitude, longitude: end.longitude };
-    return getGreatCircleBearing(startCoords, endCoords);
-  };
-
-  const animateCar = (coords) => {
-    let index = 0;
-    const animate = () => {
-      if (index < coords.length - 1) {
-        const nextCoord = coords[index + 1];
-        const newHeading = getHeading(coords[index], nextCoord);
-        setHeading(newHeading);
-
-        carPosition
-          .timing({
-            latitude: nextCoord.latitude,
-            longitude: nextCoord.longitude,
-            duration: 1000,
-            useNativeDriver: false,
-          })
-          .start(() => {
-            index++;
-            animate();
-          });
-
-        mapRef.current.animateCamera(
-          {
-            center: {
-              latitude: nextCoord.latitude,
-              longitude: nextCoord.longitude,
-            },
-            pitch: 0,
-            heading: newHeading,
-            zoom: 18, // Adjust the zoom level as needed
-          },
-          { duration: 1000 }
-        );
-      }
-    };
-    animate();
-  };
-
-  const handleMarkerDragEnd = (e) => {
-    const newLocation = e.nativeEvent.coordinate;
-    setLocation(newLocation);
-    fetchRoute(newLocation, destination);
-  };
+  const handleMarkerDragEnd = useCallback(
+    (e) => {
+      const newLocation = e.nativeEvent.coordinate;
+      setLocation(newLocation);
+      fetchRoute(newLocation, destination);
+    },
+    [fetchRoute, destination]
+  );
 
   return (
     <View style={styles.container}>
       <MapView ref={mapRef} style={styles.map} region={region}>
-        {location && (
-          <Marker
-            draggable
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            onDragEnd={handleMarkerDragEnd}
-          >
-            <Callout>
-              <Text>You are here</Text>
-            </Callout>
-          </Marker>
-        )}
-        {destination && (
-          <Marker
-            coordinate={{
-              latitude: destination.latitude,
-              longitude: destination.longitude,
-            }}
-          >
-            <Callout>
-              <Text>Destination</Text>
-            </Callout>
-          </Marker>
-        )}
-        {polylineCoordinates.length > 0 && (
-          <Polyline
-            coordinates={polylineCoordinates}
-            strokeColor="#FF0000"
-            strokeWidth={3}
-          />
-        )}
+        <Marker draggable coordinate={location} onDragEnd={handleMarkerDragEnd}>
+          <Callout>
+            <Text>You are here</Text>
+          </Callout>
+        </Marker>
+        <Marker coordinate={destination}>
+          <Callout>
+            <Text>Destination</Text>
+          </Callout>
+        </Marker>
+        <Polyline
+          coordinates={polylineCoordinates}
+          strokeColor="#FF0000"
+          strokeWidth={3}
+        />
         <Marker.Animated
           coordinate={carPosition}
           title="Car"
